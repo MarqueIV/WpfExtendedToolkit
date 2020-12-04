@@ -18,9 +18,6 @@
     <RootNamespace>Xceed.Wpf.Toolkit</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="**\*.png" />
   </ItemGroup>
   <ItemGroup>
