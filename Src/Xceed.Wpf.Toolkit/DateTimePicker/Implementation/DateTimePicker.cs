@@ -2,10 +2,10 @@
    
    Toolkit for WPF
 
-   Copyright (C) 2007-2018 Xceed Software Inc.
+   Copyright (C) 2007-2019 Xceed Software Inc.
 
    This program is provided to you under the terms of the Microsoft Public
-   License (Ms-PL) as published at http://wpftoolkit.codeplex.com/license 
+   License (Ms-PL) as published at https://github.com/xceedsoftware/wpftoolkit/blob/master/license.md
 
    For more features, controls, and fast professional support,
    pick up the Plus Edition at https://xceed.com/xceed-toolkit-plus-for-wpf/
@@ -287,14 +287,14 @@ namespace Xceed.Wpf.Toolkit
     protected override void OnValueChanged( DateTime? oldValue, DateTime? newValue )
     {
       //The calendar only select the Date part, not the time part.
-      DateTime? newValueDate = (newValue != null) 
-        ? newValue.Value.Date 
-        : (DateTime?)null;
+      //Pull request : the time part is important if we want to initialise the calendar with the current day and another hour 
+      DateTime? newValueDate = (newValue != null)  ? newValue.Value : (DateTime?)null;
 
       if( _calendar != null && _calendar.SelectedDate != newValueDate)
       {
         _calendar.SelectedDate = newValueDate;
         _calendar.DisplayDate = newValue.GetValueOrDefault( this.ContextNow );
+
       }
 
       //If we change any part of the datetime without
@@ -304,6 +304,12 @@ namespace Xceed.Wpf.Toolkit
       {
         _calendarTemporaryDateTime = null;
         _calendarIntendedDateTime = null;
+      }
+
+      if( _timePicker != null )
+      {
+        // sync TimePicker.TempValue with current DatetimePicker.Value
+        _timePicker.UpdateTempValue( newValue );
       }
 
       base.OnValueChanged( oldValue, newValue );
@@ -400,12 +406,17 @@ namespace Xceed.Wpf.Toolkit
             newDate = newDate.Value.Date + _calendarIntendedDateTime.Value.TimeOfDay;
             _calendarTemporaryDateTime = null;
             _calendarIntendedDateTime = null;
-          }
+          } 
+        //Pull request : the value should be used first. The Tempvalue should be a fallback 
           else if( Value != null )
           {
             newDate = newDate.Value.Date + Value.Value.TimeOfDay;
           }
-
+          else if( ( _timePicker != null ) && _timePicker.TempValue.HasValue ) // bug
+          {
+            newDate = newDate.Value.Date + _timePicker.TempValue.Value.TimeOfDay;
+          }
+        
           // Always be sure that the time part of the selected value is always 
           // within the bound of the min max. The time part could be altered
           // if the calendar's selected date match the Minimum or Maximum date.
@@ -421,19 +432,24 @@ namespace Xceed.Wpf.Toolkit
           }
         }
 
-        if( this.UpdateValueOnEnterKey )
-        {
-          _fireSelectionChangedEvent = false;
-          this.TextBox.Text = newDate.Value.ToString( this.GetFormatString( this.Format ), this.CultureInfo );
-          _fireSelectionChangedEvent = true;
-        }
-        else
-        {
+        //if( this.UpdateValueOnEnterKey )
+        //{
+        //  _fireSelectionChangedEvent = false;
+        //  this.TextBox.Text = newDate.Value.ToString( this.GetFormatString( this.Format ), this.CultureInfo );
+        //  if( _timePicker != null )
+        //  {
+        //    // update TimePicker.TempValue with new Calendar selection.
+        //    _timePicker.UpdateTempValue( newDate );
+        //  }
+        //  _fireSelectionChangedEvent = true;
+        //}
+        //else
+        //{
           if( !object.Equals( newDate, Value ) )
           {
             this.Value = newDate;
           }
-        }
+        //}
       }
     }
 
@@ -443,6 +459,16 @@ namespace Xceed.Wpf.Toolkit
 
       if( _calendar != null )
         _calendar.Focus();
+
+      if( _timePicker != null )
+      {
+        if( this.TextBox != null )
+        {
+          // Set TimePicker.TempValue with current DateTimePicker.TextBox.Text.
+          var initialDate = this.ConvertTextToValue( this.TextBox.Text );
+          _timePicker.UpdateTempValue( initialDate );
+        }
+      }
     }
 
     #endregion //Event Handlers

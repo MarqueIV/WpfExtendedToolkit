@@ -2,10 +2,10 @@
    
    Toolkit for WPF
 
-   Copyright (C) 2007-2018 Xceed Software Inc.
+   Copyright (C) 2007-2019 Xceed Software Inc.
 
    This program is provided to you under the terms of the Microsoft Public
-   License (Ms-PL) as published at http://wpftoolkit.codeplex.com/license 
+   License (Ms-PL) as published at https://github.com/xceedsoftware/wpftoolkit/blob/master/license.md
 
    For more features, controls, and fast professional support,
    pick up the Plus Edition at https://xceed.com/xceed-toolkit-plus-for-wpf/
@@ -14,9 +14,9 @@
 
   ***********************************************************************************/
 
-using System.Windows;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 
 namespace Xceed.Wpf.Toolkit.PropertyGrid.Editors
 {
@@ -46,7 +46,11 @@ namespace Xceed.Wpf.Toolkit.PropertyGrid.Editors
       var icollection = propertyItem.PropertyType.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(ICollection<>));
       if (icollection != null)
       {
-          Editor.ItemType = icollection.GetGenericArguments()[0];
+        Editor.ItemType = icollection.GetGenericArguments()[0];
+      }
+      else if ( type.BaseType == typeof( System.Array ) )
+      {
+        Editor.ItemType = type.GetElementType();
       }
       else
       {

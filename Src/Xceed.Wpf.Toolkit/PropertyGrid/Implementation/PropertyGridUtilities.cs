@@ -2,10 +2,10 @@
    
    Toolkit for WPF
 
-   Copyright (C) 2007-2018 Xceed Software Inc.
+   Copyright (C) 2007-2019 Xceed Software Inc.
 
    This program is provided to you under the terms of the Microsoft Public
-   License (Ms-PL) as published at http://wpftoolkit.codeplex.com/license 
+   License (Ms-PL) as published at https://github.com/xceedsoftware/wpftoolkit/blob/master/license.md
 
    For more features, controls, and fast professional support,
    pick up the Plus Edition at https://xceed.com/xceed-toolkit-plus-for-wpf/
@@ -19,7 +19,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Net;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -34,6 +33,7 @@ using System.Windows.Controls.Primitives;
 using Xceed.Wpf.Toolkit.PropertyGrid.Converters;
 using Xceed.Wpf.Toolkit.Primitives;
 using System.IO;
+using System.Net;
 
 namespace Xceed.Wpf.Toolkit.PropertyGrid
 {
@@ -55,6 +55,7 @@ namespace Xceed.Wpf.Toolkit.PropertyGrid
       if( (typeConverter != null)
         && typeConverter.GetStandardValuesSupported( context )
         && typeConverter.GetStandardValuesExclusive( context )
+        && !( typeConverter is ReferenceConverter )  
         && (propertyType != typeof( bool )) && (propertyType != typeof( bool? )) )  //Bool type always have a BooleanConverter with standardValues : True/False.
       {
         var items = typeConverter.GetStandardValues( context );
@@ -90,7 +91,7 @@ namespace Xceed.Wpf.Toolkit.PropertyGrid
         editor = new DateTimeUpDownEditor();
       else if( ( propertyType == typeof( Color ) ) || ( propertyType == typeof( Color? ) ) )
         editor = new ColorEditor();
-      else if ((propertyType == typeof(Brush)))
+      else if ( propertyType == typeof(Brush) )
         editor = new BrushEditor();
       else if( propertyType.IsEnum )
         editor = new EnumComboBoxEditor();
@@ -103,7 +104,7 @@ namespace Xceed.Wpf.Toolkit.PropertyGrid
       else if (propertyType == typeof(char) || propertyType == typeof(char?))
         editor = new MaskedTextBoxEditor() { ValueDataType = propertyType, Mask = "&" };
       else if (propertyType == typeof(IPAddress))
-          editor = new IpTextBoxEditor() { };
+        editor = new IpTextBoxEditor() { };
       else if( propertyType == typeof( object ) )
         // If any type of object is possible in the property, default to the TextBoxEditor.
         // Useful in some case (e.g., Button.Content).

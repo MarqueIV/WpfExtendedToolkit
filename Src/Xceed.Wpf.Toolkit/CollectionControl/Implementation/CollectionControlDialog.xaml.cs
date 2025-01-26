@@ -2,10 +2,10 @@
    
    Toolkit for WPF
 
-   Copyright (C) 2007-2018 Xceed Software Inc.
+   Copyright (C) 2007-2019 Xceed Software Inc.
 
    This program is provided to you under the terms of the Microsoft Public
-   License (Ms-PL) as published at http://wpftoolkit.codeplex.com/license 
+   License (Ms-PL) as published at https://github.com/xceedsoftware/wpftoolkit/blob/master/license.md
 
    For more features, controls, and fast professional support,
    pick up the Plus Edition at https://xceed.com/xceed-toolkit-plus-for-wpf/
@@ -199,15 +199,9 @@ namespace Xceed.Wpf.Toolkit
       object result = null;
       var sourceType = source.GetType();
 
-      if( source is Array )
+      if( source is Array array)
       {
-        using( var stream = new MemoryStream() )
-        {
-          var formatter = new BinaryFormatter();
-          formatter.Serialize( stream, source );
-          stream.Seek( 0, SeekOrigin.Begin );
-          result = ( Array )formatter.Deserialize( stream );
-        }
+        result = array.Clone();
       }
       // For IDictionary, we need to create EditableKeyValuePair to edit the Key-Value.
       else if( ( this.ItemsSource is IDictionary )
@@ -216,8 +210,6 @@ namespace Xceed.Wpf.Toolkit
       {
         result = this.GenerateEditableKeyValuePair( source );
       }
-      else if (sourceType == typeof(string))
-      { result = source; }
       else
       {
         // Initialized a new object with default values
@@ -240,7 +232,7 @@ namespace Xceed.Wpf.Toolkit
         }
       }
       Debug.Assert( result != null );
-      if( result != null && !( result is string ) )
+      if( result != null )
       {
         var properties = sourceType.GetProperties();
 
